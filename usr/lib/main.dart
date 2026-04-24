@@ -1,123 +1,402 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const InkFormulationApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class InkFormulationApp extends StatelessWidget {
+  const InkFormulationApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
+      title: 'Ink Formulation Slide',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1E3A8A),
+          brightness: Brightness.light,
+        ),
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
-      },
+      home: const SlideScreen(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class SlideScreen extends StatefulWidget {
+  const SlideScreen({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<SlideScreen> createState() => _SlideScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _SlideScreenState extends State<SlideScreen> {
+  // Constants and variables
+  final double tvPercentage = 40.0;
+  double basePercentage = 30.0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  double get varnishPercentage => 100.0 - tvPercentage - basePercentage;
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
+      backgroundColor: Colors.grey[200],
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text('$_counter', style: Theme.of(context).textTheme.headlineMedium),
-          ],
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Container(
+            margin: const EdgeInsets.all(32.0),
+            padding: const EdgeInsets.all(40.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 48),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: _buildChartSection(),
+                      ),
+                      const SizedBox(width: 48),
+                      Expanded(
+                        flex: 2,
+                        child: _buildControlsSection(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Finished Ink Formulation',
+              style: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w800,
+                color: Colors.blueGrey[900],
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Interactive composition guide for standard ink mixing',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.blueGrey[400],
+              ),
+            ),
+          ],
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            '100% Total',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChartSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text(
+          'Composition Breakdown',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 32),
+        _buildStackedBar(),
+        const SizedBox(height: 48),
+        _buildLegend(),
+      ],
+    );
+  }
+
+  Widget _buildStackedBar() {
+    return Container(
+      height: 80,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Row(
+        children: [
+          _buildBarSegment(
+            percentage: tvPercentage,
+            color: const Color(0xFF1E3A8A), // Deep Blue
+            label: 'TV',
+          ),
+          _buildBarSegment(
+            percentage: basePercentage,
+            color: const Color(0xFF047857), // Emerald Green
+            label: 'Base',
+          ),
+          _buildBarSegment(
+            percentage: varnishPercentage,
+            color: const Color(0xFFD97706), // Amber
+            label: 'Varnish',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBarSegment({
+    required double percentage,
+    required Color color,
+    required String label,
+  }) {
+    if (percentage <= 0) return const SizedBox.shrink();
+    
+    return Expanded(
+      flex: (percentage * 10).toInt(),
+      child: Container(
+        color: color,
+        child: Center(
+          child: percentage > 5 // Only show text if segment is wide enough
+              ? Text(
+                  '${percentage.toStringAsFixed(0)}%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                )
+              : null,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegend() {
+    return Column(
+      children: [
+        _buildLegendItem(
+          color: const Color(0xFF1E3A8A),
+          title: 'TV (Constant)',
+          percentage: tvPercentage,
+          description: 'Fixed at 40%',
+        ),
+        const SizedBox(height: 16),
+        _buildLegendItem(
+          color: const Color(0xFF047857),
+          title: 'Base',
+          percentage: basePercentage,
+          description: 'Variable between 10% and 60%',
+        ),
+        const SizedBox(height: 16),
+        _buildLegendItem(
+          color: const Color(0xFFD97706),
+          title: 'Clear NC Varnish',
+          percentage: varnishPercentage,
+          description: 'Automatically adjusts (0% to 50%)',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem({
+    required Color color,
+    required String title,
+    required double percentage,
+    required String description,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.blueGrey[400],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          '${percentage.toStringAsFixed(0)}%',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildControlsSection() {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      decoration: BoxDecoration(
+        color: Colors.grey[50],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'Adjust Formulation',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Move the slider to modify the Base percentage. Varnish will compensate to maintain 100% total.',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.blueGrey[400],
+            ),
+          ),
+          const SizedBox(height: 48),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Base %',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '${basePercentage.toStringAsFixed(0)}%',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF047857),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SliderTheme(
+            data: SliderThemeData(
+              activeTrackColor: const Color(0xFF047857),
+              inactiveTrackColor: const Color(0xFF047857).withOpacity(0.2),
+              thumbColor: const Color(0xFF047857),
+              overlayColor: const Color(0xFF047857).withOpacity(0.1),
+              trackHeight: 8,
+            ),
+            child: Slider(
+              value: basePercentage,
+              min: 10,
+              max: 60,
+              divisions: 50,
+              label: '${basePercentage.toStringAsFixed(0)}%',
+              onChanged: (value) {
+                setState(() {
+                  basePercentage = value;
+                });
+              },
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('10%', style: TextStyle(color: Colors.grey[500])),
+              Text('60%', style: TextStyle(color: Colors.grey[500])),
+            ],
+          ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blue[100]!),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.info_outline, color: Colors.blue[700]),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Example: $tvPercentage% TV, ${basePercentage.toStringAsFixed(0)}% base, ${varnishPercentage.toStringAsFixed(0)}% clear NC varnish = 100% finished ink',
+                    style: TextStyle(
+                      color: Colors.blue[900],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
